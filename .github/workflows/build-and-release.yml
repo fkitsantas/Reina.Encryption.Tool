@@ -26,7 +26,7 @@ jobs:
         id: commit_message
         run: |
           $commitMessage = git log -1 --pretty=%B
-          echo "::set-output name=message::$commitMessage"
+          echo "message=$commitMessage" >> $GITHUB_ENV
 
       # Calculate version number
       - name: Calculate version
@@ -63,7 +63,7 @@ jobs:
           }
           $newVersion = "$major.$minor.$build"
           echo "New version: $newVersion"
-          echo "::set-output name=version::$newVersion"
+          echo "version=$newVersion" >> $GITHUB_ENV
 
       # Update .csproj file
       - name: Update project version
@@ -83,7 +83,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add $csprojPath
-          git commit -m "Update version to ${{ steps.version.outputs.version }}"
+          git commit -m "Update version to ${{ env.version }}"
           git push
 
       # Build and Publish Project
@@ -104,11 +104,11 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: ${{ steps.version.outputs.version }}
+          automatic_release_tag: ${{ env.version }}
           prerelease: false
-          title: "Latest Build v${{ steps.version.outputs.version }}"
-          body: ${{ steps.commit_message.outputs.message }}
-
+          title: "Latest Build v${{ env.version }}"
+          body: ${{ env.message }}
+          
       # Upload Built Executable
       - name: Upload Built Executable
         uses: actions/upload-release-asset@v1
@@ -117,5 +117,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./publish_output/Reina.EncryptionTool.exe
-          asset_name: Reina.EncryptionTool_${{ steps.version.outputs.version }}.exe
+          asset_name: Reina.EncryptionTool_v${{ env.version }}.exe
           asset_content_type: application/octet-stream
