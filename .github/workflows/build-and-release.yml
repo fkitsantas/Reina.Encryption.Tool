@@ -38,11 +38,11 @@ jobs:
             exit 1
           }
 
-          # Fetch current version prefix from csproj
+          # Fetch current version from csproj
           [xml]$csproj = Get-Content "Reina.EncryptionTool.csproj"
-          $currentVersion = $csproj.Project.PropertyGroup.VersionPrefix
+          $currentVersion = $csproj.Project.PropertyGroup.Version
           if ([string]::IsNullOrEmpty($currentVersion)) {
-            Write-Error "VersionPrefix not found in Reina.EncryptionTool.csproj"
+            Write-Error "Version not found in Reina.EncryptionTool.csproj"
             exit 1
           }
 
@@ -71,11 +71,11 @@ jobs:
           $csprojPath = "Reina.EncryptionTool.csproj"
           [xml]$csproj = Get-Content $csprojPath
 
-          # Check if VersionPrefix exists and update it
-          if ($csproj.Project.PropertyGroup.VersionPrefix) {
-              $csproj.Project.PropertyGroup.VersionPrefix = "${{ steps.version.outputs.version }}"
+          # Check if Version exists and update it
+          if ($csproj.Project.PropertyGroup.Version) {
+              $csproj.Project.PropertyGroup.Version = "${{ steps.version.outputs.version }}"
           } else {
-              Write-Error "<VersionPrefix> not found in $csprojPath"
+              Write-Error "<Version> not found in $csprojPath"
               exit 1
           }
 
